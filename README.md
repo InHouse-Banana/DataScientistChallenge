@@ -12,6 +12,34 @@ This dataset contains information on default payments, demographic factors, cred
 - Evaluate the data quality and figure out whether outliners exist
 - Select the strongest predictors and perform feature engineering
 
+	1. `PAY_1` column is not defined in the data dictionary hence discarded
+	2. 	`PAY_0`, and `PAY_2` to `PAY_6` are dropped because their inclusion would create multiple categories that may have very few elements, hence, possibly, making the model overfit. The column ID won't be useful for a prediction so it'll be dropped as well
+	3. 	At first sight some records in some of the features that do not appear in the data dictionary. While these values might be grouped under others or unknown, unless this is agreed with domain experts, the best practice is to discard them.
+		![baseline_categorical_sex_ed_marr](images/baseline_categorical_sex_ed_marr.png)
+	4. Few elements in certain combinations of categories: in the first pass they were kept but they hampered the model performance hence they were discarded on the second iteration of the model
+	5. Created a new feature `BAL_AMT = BILL_AMT - PAY_AMT`, and drop `BILL_AMT`, `PAY_AMT`. Having this feature should capture the same information and also making the model training faster by having one less feature to train on.
+	6. This results in the features and target = default.payment.next.month:
+	
+		![baseline_features_targets](images/baseline_features_targets.png)
+	
+	From here there are some interesting insights, for example:
+	
+	- Most of the customers are in the 20-40 years old range.
+		
+		![baseline_age](images/baseline_age.png)
+	
+	- This plot is representative of the `BAL_AMT` features, which are mostly centered around 0 but there are some outliers, which for this exercise aren't discared though they could in further iterations.
+	
+		![baseline_distribution_numerical_features](images/baseline_distribution_numerical_features.png)
+		
+	- The target `default.payment.next.month` is unbalanced hence, after doing the train/test split the minority class `default.payment.next.month = 1` will be upscaled.
+
+		![baseline_targets_distribution](images/baseline_targets_distribution.png)
+	
+	- Some combinations of categorical features have very few elements hence it's hypothesised that they will hamper the model performance.
+
+		![baseline_combination_categories](images/baseline_combination_categories.png)
+
 
 
 ## Part 2: Prediction Modeling
@@ -20,21 +48,45 @@ This dataset contains information on default payments, demographic factors, cred
 - The model is not expected to be perfectly accurate and precise, but instead try to build a simple one involving fewer features based on the limited time frame
 - Evaluate the performance of model
 
+
+	1. I selected an XGBoost classificator model for its versatility at the risk of overfitting the small dataset which became evident when doing a small training test
+		![baseline_training](images/baseline_training.png)
+	2. After using GridSearchCV (with 3 folds due to the small amount of data) the resulting model has the following metrics:
+	
+		``` bash
+		Metrics Train - accuracy: 0.93 f1: 0.94 precision: 0.91 recall: 0.97 roc_auc: 0.93
+		Metrics Test - accuracy: 0.68 f1: 0.34 precision: 0.31 recall: 0.37 roc_auc: 0.57
+		```
+		![baseline_train_test](images/baseline_train_test.png)
+		
+		It can be seen that the metrics in the training dataset are significantly better than in the test dataset, a sign that the model is overfitting. Hence in subsequent models a shallower model could be tested.
+	3. I focus in the `ROC_AUC` metrics as it's the harmonic mean of precision and recall, avoiding the [`accuracy in imbalanced situations trap`](https://machinelearningmastery.com/failure-of-accuracy-for-imbalanced-class-distributions/). Though which metric to focus on can be discussed with the domain experts so the model is aligned with the business objectives. When taking a look into individual categories. When taking a look into the combination of categories I found that the ones that had fewer elemtents do hamper the performance of the model, and these are education = others and marriage = others
+
+		![baseline_roc_test_gender](images/baseline_roc_test_gender.png)
+		![baseline_roc_test_marr](images/baseline_roc_test_marr.png)
+			
+	4. Additionally the same combinations of categories with few elements do have little predictive power according to SHAP values
+	
+		![baseline_shap_test](images/baseline_shap_test.png)
+		
+	5. These findings raise show us a couple of paths that we could follow to improve the model. These avenues are discussed in [Optional](#optional).
+	
+
+## Part 3: Model refinement
+
 ## Requirements
 
 - [ x ] Jupyter Notebook for Exploratory Data Analysis (EDA) and Extract-Transform-Load (ETL):
 	- [v0\_Baseline\_FeatureExploration/00\_ExploratoryAnalysis\_ETL.ipynb](v0_Baseline_FeatureExploration/00_ExploratoryAnalysis_ETL.ipynb): Contains the first pass of EDA and ETL, dropping features that would create subcategories with few items, have multiple nan values or undescribed values. As well a a new feature BAL\_AMT = BILL\_AMT - PAY\_AMT. Moreover, it was found that there are outliers in the numerical features and that also the categories to predict are umbalanced. Finally, the output of this is the data for training in its original format and one_hot_encoded in addition to the encoder.
-	- [00\_ExploratoryAnalysis\_ETL](00_ExploratoryAnalysis_ETL.ipynb): Second iteration of EDA and ETL. Based on the findings of the first model training, some the categories with few elements were dropped, e.g. education = others and marriage = others. Exporting the data for training in its original format and one_hot_encoded in addition to the encoder.
+	- [00\_ExploratoryAnalysis\_ETL](00_ExploratoryAnalysis_ETL.ipynb): Second iteration of EDA and ETL. Based on the findings of the first model training, some the categories with few elements were dropped, e.g. `education = others` and `marriage = others`. Exporting the data for training in its original format and one_hot_encoded in addition to the encoder.
 
 - [ x ] Jupyter Notebook for Prediction Modeling:
-	- [v0\_Baseline\_FeatureExploration/01\_Model.ipynb](v0_Baseline_FeatureExploration/01_Model.ipynb): First pass of the XGBoost model training. I split the data in train/test using a 80/20 split, stratified according to if the customer defaults or not and tuned using GridSearchCV. The training results show that, as expected, the categories  with few elements, e.g. education = others and marriage = others, impact the model negatively and as well have low predicting power according to SHAP values, hence in the next revision they are discarded.
-	- [01\_Model.ipynb](v0_Baseline_FeatureExploration/01_Model.ipynb): Second iteration of the XGBoost model training. Following the same procedure that in the first pass the training results show that, in general there's an increase in AUC by a couple percentages for most categories or lowering the spread in its value. Therefore, confirming that the categories with few elements, e.g. education = others and marriage = others, impacted the model negatively. Moreover, the category education = unknown might be also considered to be discarded, but this is left for a further iteration of the model.
+	- [v0\_Baseline\_FeatureExploration/01\_Model.ipynb](v0_Baseline_FeatureExploration/01_Model.ipynb): First pass of the XGBoost model training. I split the data in train/test using a 80/20 split, stratified according to if the customer defaults or not and tuned using GridSearchCV. The training results show that, as expected, the categories  with few elements, e.g. `education = others` and `marriage = others`, impact the model negatively and as well have low predicting power according to SHAP values, hence in the next revision they are discarded.
+	- [01\_Model.ipynb](v0_Baseline_FeatureExploration/01_Model.ipynb): Second iteration of the XGBoost model training. Following the same procedure that in the first pass the training results show that, in general there's an increase in AUC by a couple percentages for most categories or lowering the spread in its value. Therefore, confirming that the categories with few elements, e.g. `education = others` and `marriage = others`, impacted the model negatively. Moreover, the category education = unknown might be also considered to be discarded, but this is left for a further iteration of the model.
 
 - [ ] Implementation in Python of a simple data model that can be trained and predict whether a user will default or not, let us know if you prefer something other than Python
 
 The instructions on how to run them can be found in the [Deliverables](#deliverables) section.
-
-
 
 ## Optional
 
@@ -42,9 +94,8 @@ The instructions on how to run them can be found in the [Deliverables](#delivera
 
 	The general strategy was to:
 	
-	1. Do a first pass to create a model baseline, to which subsequent models could be compared, making the minimum ETL and feature creation which can be found in [v0\_Baseline\_FeatureExploration](v0_Baseline_FeatureExploration).
+	1. Do a first pass to create a model baseline, to which subsequent models could be compared, making a minimal ETL and feature creation which can be found in [v0\_Baseline\_FeatureExploration](v0_Baseline_FeatureExploration).
 	2. Implement some of the learnings from the first pass and iterate in the feature creation and model training which can be found in [the current root folder](.).
-	
 	
 	These two iterations had the same approach, that is to divide the work into two stages:
 
@@ -52,11 +103,12 @@ The instructions on how to run them can be found in the [Deliverables](#delivera
 		- Discard features with multiple nan's or that aren't explained by the data dictionary.
 		- Identify for numerical outliers, in this case these were kept in place which would allow to stablish a model baseline. This is work that could be done in a third pass of the model.
 		- Few elements in certain combinations of categories: in the first pass they were kept but they hampered the model performance hence they were discarded on the second iteration of the model
-		- Imbalanced predictive class: I decided to upscale the minority class, e.g. defaults, as this would allow to keep the richness of the majority class features.
+		- Created a new feature `BAL_AMT = BILL_AMT - PAY_AMT`, and drop `BILL_AMT`, `PAY_AMT`. Having this feature should capture the same information and also making the model training faster by having one less feature to train on.
 
 	- Model training, done in `01_Model.ipynb` files, for example:
-		- 	Used an XGBoost classifier which is a versatile and powerful model, that doesn't require feature scaling, it's not affected by multicolinearity by default but is prone to overfitting in small datasets such as this one.
-		-  Tuned the model using GridSearchCV, which instead could be done using a bayesian or another hyperparameter method that allows 'educated guesses' of hyperparameters resulting in fewer evaluations and a more accurate model.
+		- Imbalanced predictive class: I decided to upscale the minority class, e.g. defaults, as this would allow to keep the richness of the majority class features.
+		- Used an XGBoost classifier which is a versatile and powerful model, that doesn't require feature scaling, it's not affected by multicolinearity by default but is prone to overfitting in small datasets such as this one.
+		- Tuned the model using GridSearchCV, which instead could be done using a bayesian or another hyperparameter method that allows 'educated guesses' of hyperparameters resulting in fewer evaluations and a more accurate model.
 
 
 - [ x ] Let us know what improvements can be made if we have more time and resources
@@ -65,7 +117,7 @@ The instructions on how to run them can be found in the [Deliverables](#delivera
 
 	Dataset and feature improvements:
 	
-	- The categories with small number of records, for example education_others, should be discarded as they hamper the training, metrics and they have low predictive value according to shap and importances.
+	- The categories with small number of records, for example `education = others`, should be discarded as they hamper the training, metrics and they have low predictive value according to shap and importances.
 	- Limit outliers in numerical features, for example using inter-quantile ranges.
 	- Do a more advanced feature selectior, for example using Chi-Squared, Mutual or others.
 	
@@ -110,7 +162,6 @@ Please do check [https://github.com/InHouse-Banana/DataScientistChallenge](https
 		- Requires data training source files in dataset/data.csv
 		- Execute: `python model_training.py`
 	4. To run inference execute `python model_inference.py`
-
 
 
 ## Grading and Submission Requirements
