@@ -1,0 +1,17 @@
+SEX,EDUCATION,MARRIAGE,counts
+female,university,married,1517
+female,graduate_school,single,1403
+female,university,single,1323
+male,university,single,926
+male,graduate_school,single,912
+male,university,married,751
+female,graduate_school,married,653
+female,high_school,married,603
+male,graduate_school,married,528
+female,high_school,single,338
+male,high_school,married,336
+male,high_school,single,308
+female,unknown,married,39
+female,unknown,single,26
+male,unknown,married,26
+male,unknown,single,22
