@@ -105,9 +105,16 @@ These findings raise show us a couple of paths that we could follow to improve t
 	- [v0\_Baseline\_FeatureExploration/01\_Model.ipynb](v0_Baseline_FeatureExploration/01_Model.ipynb): First pass of the XGBoost model training. I split the data in train/test using a 80/20 split, stratified according to if the customer defaults or not and tuned using GridSearchCV. The training results show that, as expected, the categories  with few elements, e.g. `education = others` and `marriage = others`, impact the model negatively and as well have low predicting power according to SHAP values, hence in the next revision they are discarded.
 	- [01\_Model.ipynb](v0_Baseline_FeatureExploration/01_Model.ipynb): Second iteration of the XGBoost model training. Following the same procedure that in the first pass the training results show that, in general there's an increase in AUC by a couple percentages for most categories or lowering the spread in its value. Therefore, confirming that the categories with few elements, e.g. `education = others` and `marriage = others`, impacted the model negatively. Moreover, the category education = unknown might be also considered to be discarded, but this is left for a further iteration of the model.
 
-- [ ] Implementation in Python of a simple data model that can be trained and predict whether a user will default or not, let us know if you prefer something other than Python
+- [ x ] Implementation in Python of a simple data model that can be trained and predict whether a user will default or not, let us know if you prefer something other than Python
 
-The instructions on how to run them can be found in the [Deliverables](#deliverables) section.
+	There are two python scripts for which the instructions are on how to run them can be found in the [Deliverables](#deliverables) section which mainly involve activating the respective virtual environment.
+
+	1. `model_training.py` that trains a model based in the findings of `00_ExploratoryAnalysis_ETL.ipynb` and `01_Model.ipynb`
+	2. `model_inference.py` that takes a file with exactly the same features as `data.csv` and makes predictions, giving the output metrics.
+	3. It's worth noting that `model_inference.py` could be adapted to receive command line arguments though this was not done in this case. 
+
+
+
 
 ## Optional
 
@@ -133,7 +140,7 @@ The instructions on how to run them can be found in the [Deliverables](#delivera
 
 - [ x ] Let us know what improvements can be made if we have more time and resources
 
-1. From the first model training I can suggest he following.
+1. From the first model training I can suggest the following.
 
 	Dataset and feature improvements:
 	
@@ -181,7 +188,49 @@ Please do check [https://github.com/InHouse-Banana/DataScientistChallenge](https
 	3. To run the training, after activating the env please execute the following commands.  The script will take care of ETL, feature creation and model tuning.
 		- Requires data training source files in dataset/data.csv
 		- Execute: `python model_training.py`
-	4. To run inference execute `python model_inference.py`
+	4. To run inference execute `python model_inference.py`, which takes a `source-file` with exactly the same features as `data.csv`, makes defaulting predictions and returns the metrics.
+
+
+The model training, e.g.  `python model_training.py`,  will output:
+
+```
+training_data_file      csv file that contains the features and the respective targets
+features_targets_file   csv file that contains the one-hot encoded features and the respective targets
+combinations_cats       csv file that contains the category combinations counts
+enc                     encoder that performs one-hot-encoding with handle_unknown='ignore'
+model                   tuned xgboost model
+
+Prints [acc, f1, prec, rec, roc_auc] for train and test datasets
+```
+
+Moreover, executing `python model_training.py --help` returns the list of optional args:
+
+``` bash
+  --source-file SOURCE_FILE
+                        file containing the features and targets to calculate metrics
+  --model_file MODEL_FILE
+                        where the model will be saved model
+  --enc_file ENC_FILE   where the encoder will be saved
+  --n_jobs N_JOBS       number of cores for the model to use
+```	
+
+Executing model inference, `python model_inference.py`,  will output the metrics for the given file:
+
+```
+    Prints [acc, f1, prec, rec, roc_auc, shape_x, shape_y]
+```
+
+Moreover, executing `python model_inference.py --help` returns the list of optional args:
+
+``` bash
+--source-file SOURCE_FILE
+                    file containing the features and targets to calculate metrics
+--model_file MODEL_FILE
+                    model file location that will be tested
+--enc_file ENC_FILE   encoder file locations to one-hot features
+
+
+```	
 
 
 ## Grading and Submission Requirements
