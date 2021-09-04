@@ -62,22 +62,47 @@ This dataset contains information on default payments, demographic factors, cred
 		It can be seen that the metrics in the training dataset are significantly better than in the test dataset, a sign that the model is overfitting. Hence in subsequent models a shallower model could be tested.
 	3. I focus in the `ROC_AUC` metrics as it's the harmonic mean of precision and recall, avoiding the [`accuracy in imbalanced situations trap`](https://machinelearningmastery.com/failure-of-accuracy-for-imbalanced-class-distributions/). Though which metric to focus on can be discussed with the domain experts so the model is aligned with the business objectives. When taking a look into individual categories. When taking a look into the combination of categories I found that the ones that had fewer elemtents do hamper the performance of the model, and these are education = others and marriage = others
 
-		![baseline_roc_test_gender](images/baseline_roc_test_gender.png)
+		![baseline_roc_test_gender](images/baseline_roc_test_sex.png)
 		![baseline_roc_test_marr](images/baseline_roc_test_marr.png)
 			
 	4. Additionally the same combinations of categories with few elements do have little predictive power according to SHAP values
 	
 		![baseline_shap_test](images/baseline_shap_test.png)
 		
-	5. These findings raise show us a couple of paths that we could follow to improve the model. These avenues are discussed in [Optional](#optional).
+	5. These findings raise show us a couple of paths that we could follow to improve the model. These avenues are discussed in the section [Optional](#optional). 
 	
 
 ## Part 3: Model refinement
 
+While the same approach as in Part 1 and Part 2 are taken, the learnings from the first iteration of the model, which are discussed in [Optional](#optional), I discard `education = others` and `marriage = others` resulting in the following categories:
+
+![revised_model_categories](images/revised_model_categories.png)
+
+Moreover, I after tuning a shallower model (less deep tree up to 8), the metrics are: 
+
+```
+Metrics Train - accuracy: 0.95 f1: 0.95 precision: 0.92 recall: 0.98 roc_auc: 0.95
+Metrics Test - accuracy: 0.7 f1: 0.37 precision: 0.35 recall: 0.39 roc_auc: 0.59
+```
+
+which show a slightly `ROC_AUC` for the training set but an improvement in the test, reducing the overfitting, that show us that both reducing the complexity of the model and dropping categories w/o help the model predict unseen data.
+
+Moreover, the categories are a bit more stable, with slightly higher values individual (as the average shows) but when that's not the case the spread is tighter.
+
+![revised_model_roc_test_gender](images/revised_model_roc_test_sex.png)
+![revised_model_roc_test_marr](images/revised_model_roc_test_marr.png)
+
+Finally the SHAP importance values show us that the features kept have a similar order than the original model, confirming that keeping them was the right decision. 
+
+![revised_model_shap_test](images/revised_model_shap_test.png)
+
+
+
+
 ## Requirements
 
 - [ x ] Jupyter Notebook for Exploratory Data Analysis (EDA) and Extract-Transform-Load (ETL):
-	- [v0\_Baseline\_FeatureExploration/00\_ExploratoryAnalysis\_ETL.ipynb](v0_Baseline_FeatureExploration/00_ExploratoryAnalysis_ETL.ipynb): Contains the first pass of EDA and ETL, dropping features that would create subcategories with few items, have multiple nan values or undescribed values. As well a a new feature BAL\_AMT = BILL\_AMT - PAY\_AMT. Moreover, it was found that there are outliers in the numerical features and that also the categories to predict are umbalanced. Finally, the output of this is the data for training in its original format and one_hot_encoded in addition to the encoder.
+	- [v0\_Baseline\_FeatureExploration/00\_ExploratoryAnalysis\_ETL.ipynb](v0_Baseline_FeatureExploration/00_ExploratoryAnalysis_ETL.ipynb): Contains the first pass of EDA and ETL, dropping features that would create subcategories with few items, have multiple nan values or undescribed values. As well a a new feature `BAL_AMT = BILL_AMT - PAY_AMT`. Moreover, it was found that there are outliers in the numerical features and that also the categories to predict are umbalanced. Finally, the output of this is the data for training in its original format and one_hot_encoded in addition to the encoder.
 	- [00\_ExploratoryAnalysis\_ETL](00_ExploratoryAnalysis_ETL.ipynb): Second iteration of EDA and ETL. Based on the findings of the first model training, some the categories with few elements were dropped, e.g. `education = others` and `marriage = others`. Exporting the data for training in its original format and one_hot_encoded in addition to the encoder.
 
 - [ x ] Jupyter Notebook for Prediction Modeling:
@@ -139,7 +164,7 @@ The instructions on how to run them can be found in the [Deliverables](#delivera
 
 	Dataset and feature improvements:
 	
-	- The categories with small number of records, could be merged into one, e.g. unknown and others
+	- The categories with small number of records, could be merged into one, e.g. `education = unknown; education = others; marriage = others`, respectively.
 	
 	In terms of model training and evaluation:
 	
