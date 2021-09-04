@@ -59,7 +59,7 @@ if __name__ == "__main__":
     --enc_file ENC_FILE   encoder file locations to one-hot features
 
     Output:
-        Prints [acc, f1, prec, rec, roc, shape_x, shape_y]
+        Prints [acc, f1, prec, rec, roc_auc, shape_x, shape_y]
     """
     
     # Parsing arguments 
