@@ -12,8 +12,8 @@ This dataset contains information on default payments, demographic factors, cred
 - Evaluate the data quality and figure out whether outliners exist
 - Select the strongest predictors and perform feature engineering
 
-	1. `PAY_1` column is not defined in the data dictionary hence discarded
-	2. 	`PAY_0`, and `PAY_2` to `PAY_6` are dropped because their inclusion would create multiple categories that may have very few elements, hence, possibly, making the model overfit. The column ID won't be useful for a prediction so it'll be dropped as well
+	1. `PAY_1` column is not defined in the data dictionary hence discarded.
+	2. 	`PAY_0`, and `PAY_2` to `PAY_6` are dropped because their inclusion would create multiple categories that may have very few elements, hence, making the model overfit. The column ID won't be useful for a prediction so it'll be dropped as well.
 	3. 	At first sight some records in some of the features that do not appear in the data dictionary. While these values might be grouped under others or unknown, unless this is agreed with domain experts, the best practice is to discard them.
 	
 		![baseline_categorical_sex_ed_marr](images/baseline_categorical_sex_ed_marr.png)
@@ -52,7 +52,7 @@ This dataset contains information on default payments, demographic factors, cred
 - The model is not expected to be perfectly accurate and precise, but instead try to build a simple one involving fewer features based on the limited time frame
 - Evaluate the performance of model
 
-	1. I selected an XGBoost classificator model for its versatility at the risk of overfitting the small dataset which became evident when doing a small training test
+	1. I selected an XGBoost classificator model for its versatility at the risk of overfitting the small dataset which became evident when doing a small training test. Admitedly, this should be done using a validation set instead of test, but it serves to illustrate the point. Having a larger dataset would allow a better overfitting analysis.
 
 		![baseline_training](images/baseline_training.png)
 		
@@ -156,7 +156,7 @@ These findings raise show us a couple of paths that we could follow to improve t
 
 	Dataset and feature improvements:
 	
-	- The categories with small number of records, for example `education = others`, should be discarded as they hamper the training, metrics and they have low predictive value according to shap and importances.
+	- The categories with small number of records, for example `education = others`, could be discarded as they hamper the training, metrics and they have low predictive value according to shap and importances.
 	- Limit outliers in numerical features, for example using inter-quantile ranges.
 	- Do a more advanced feature selectior, for example using Chi-Squared, Mutual or others.
 	
