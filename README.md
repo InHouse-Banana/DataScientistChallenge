@@ -40,14 +40,11 @@ This dataset contains information on default payments, demographic factors, cred
 
 		![baseline_combination_categories](images/baseline_combination_categories.png)
 
-
-
 ## Part 2: Prediction Modeling
 
 - Train a model to predict whether a user will default or not
 - The model is not expected to be perfectly accurate and precise, but instead try to build a simple one involving fewer features based on the limited time frame
 - Evaluate the performance of model
-
 
 	1. I selected an XGBoost classificator model for its versatility at the risk of overfitting the small dataset which became evident when doing a small training test
 		![baseline_training](images/baseline_training.png)
@@ -96,8 +93,7 @@ Finally the SHAP importance values show us that the features kept have a similar
 
 ![revised_model_shap_test](images/revised_model_shap_test.png)
 
-
-
+These findings raise show us a couple of paths that we could follow to improve the model in a further iteration. These avenues are discussed in the section [Optional](#optional). 
 
 ## Requirements
 
@@ -134,7 +130,6 @@ The instructions on how to run them can be found in the [Deliverables](#delivera
 		- Imbalanced predictive class: I decided to upscale the minority class, e.g. defaults, as this would allow to keep the richness of the majority class features.
 		- Used an XGBoost classifier which is a versatile and powerful model, that doesn't require feature scaling, it's not affected by multicolinearity by default but is prone to overfitting in small datasets such as this one.
 		- Tuned the model using GridSearchCV, which instead could be done using a bayesian or another hyperparameter method that allows 'educated guesses' of hyperparameters resulting in fewer evaluations and a more accurate model.
-
 
 - [ x ] Let us know what improvements can be made if we have more time and resources
 
