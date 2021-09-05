@@ -111,22 +111,22 @@ These findings raise show us a couple of paths that we could follow to improve t
 
 - [ x ] Jupyter Notebook for Exploratory Data Analysis (EDA) and Extract-Transform-Load (ETL):
 	1. [v0\_Baseline\_FeatureExploration/00\_ExploratoryAnalysis\_ETL.ipynb](v0_Baseline_FeatureExploration/00_ExploratoryAnalysis_ETL.ipynb): 
-		- Contains the first pass of EDA and ETL, dropping features that would create subcategories with few items, have multiple nan values or undescribed values. As well a a new feature `BAL_AMT = BILL_AMT - PAY_AMT`. 
+		- Contains the first pass of EDA and ETL, dropping features that would create subcategories with few items, have multiple nan values or undescribed values. Created a new feature `BAL_AMT = BILL_AMT - PAY_AMT`. 
 		- Moreover, it was found that there are outliers in the numerical features and that also the categories to predict are umbalanced. 
 		- Finally, the output of this is the data for training in its original format and one-hot-encoded version, in addition to the encoder.
 	2. [00\_ExploratoryAnalysis\_ETL](00_ExploratoryAnalysis_ETL.ipynb): 
 		- Second iteration of EDA and ETL. Based on the findings of the first model training, some the categories with few elements were dropped, e.g. `education = others` and `marriage = others`. 
-		- Exporting the data for training in its original format and one-hot-encoded version, in addition to the encoder.
+		- Exported the data for training in its original format and one-hot-encoded version, in addition to the encoder.
 
 - [ x ] Jupyter Notebook for Prediction Modeling:
 	1. [v0\_Baseline\_FeatureExploration/01\_Model.ipynb](v0_Baseline_FeatureExploration/01_Model.ipynb):
-		-  First pass of the XGBoost model training. I split the data in train/test using a 80/20 split, stratified according to if the customer defaults or not and tuned using GridSearchCV. 
+		-  First pass of the XGBoost model training. I split the data in train/test using a 80/20 split, stratified according to the distribution of 'y', e.g. if the customer defaults or not, and tuned the model using GridSearchCV for several hyperparameters. 
 		-  The training results show that, as expected, the categories  with few elements, e.g. `education = others` and `marriage = others`, impact the model negatively and as well have low predicting power according to SHAP values, hence in the next revision they are discarded.
 
 	2. [01\_Model.ipynb](v0_Baseline_FeatureExploration/01_Model.ipynb): 
 		- Second iteration of the XGBoost model training. 
 		- Following the same ETL and split procedure that in the first pass the training results show that, in general there's an increase in AUC by a couple percentual points for most categories or lowering the standard deviation in its value. Therefore, confirming that the categories with few elements, e.g. `education = others` and `marriage = others`, impacted the model negatively. 
-		- Moreover, the category education = unknown might be also considered to be discarded, but this is left for a further iteration of the model.
+		- Moreover, the category `education = unknown` might be also considered to be discarded, but this is left for a further iteration of the model.
 
 - [ x ] Implementation in Python of a simple data model that can be trained and predict whether a user will default or not, let us know if you prefer something other than Python
 
@@ -169,20 +169,21 @@ These findings raise show us a couple of paths that we could follow to improve t
 	Dataset and feature improvements:
 	
 	- The categories with small number of records, for example `education = others`, could be discarded as they hamper the training, metrics and they have low predictive value according to shap and importances.
+	- Alternatively embeddings could be created for the combination of categories with small number of records.
 	- Limit outliers in numerical features, for example using inter-quantile ranges.
 	- Do a more advanced feature selectior, for example using Chi-Squared, Mutual or others.
 	
 	
 	Additionally, acquiring a larger dataset that could unlock the following advantages:
 	
-	- Make the categories with fewer items be more significant
+	- Make the categories with fewer items be more significant.
 	- Consider including the PAY categories if there's more data to fill the many more categories to be created.
 	- Have a validation dataset would help studying overfitting.
 	
 	In terms of model training and evaluation:
 	
 	- Better hyperparameter optimisation method for example a bayesian based one.
-	- Study the decision tree (the necessary libraries, Graphviz make the environment a bit more difficult to transfer the environment)
+	- Study the decision tree (the necessary libraries, Graphviz make the environment a bit more difficult to transfer the environment).
 	- Evaluate other models, perhaps a Neural Network. Though it's my educated belief that the effort might not pay off.
 	- In-depth discussion between data science, domain experts and management about the of trade-offs between different model metrics.
 
