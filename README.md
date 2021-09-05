@@ -15,14 +15,15 @@ This dataset contains information on default payments, demographic factors, cred
 **Answer:**
 
 1. `PAY_1` column is not defined in the data dictionary hence discarded.
-2. 	`PAY_0`, and `PAY_2` to `PAY_6` are dropped because their inclusion would create multiple categories that may have very few elements, hence, making the model overfit. The column ID won't be useful for a prediction so it'll be dropped as well.
-3. 	At first sight some records in some of the features that do not appear in the data dictionary, e.g. value of 0 in `EDUCATION` and `MARRIAGE`. While these values might be grouped under others or unknown, unless this is agreed with domain experts, the best practice is to discard them.
+2. 	`PAY_0`, and `PAY_2` to `PAY_6` were dropped because their inclusion would create multiple categories that have very few elements in each, hence, making the model overfit the train dataset. 
+3. The column `ID` is not useful for prediction so it was dropped as well.
+4. 	At first sight some records in some of the features do not appear in the data dictionary, e.g. the value of 0 in `EDUCATION` and `MARRIAGE`. While these values might be grouped under others or unknown, unless this is agreed with domain experts, the best practice is to discard them.
 	
 	![baseline_categorical_sex_ed_marr](images/baseline_categorical_sex_ed_marr.png)
 	
-4. Combinations of categories with few elements: in the first pass they were kept but they hampered the model performance hence they were discarded on the second [iteration of the model](#part-3-model-refinement).
-5. Created a new feature `BAL_AMT = BILL_AMT - PAY_AMT`, and drop `BILL_AMT`, `PAY_AMT`. Having this feature should capture the same information and also making the model training faster by having one less feature to train on.
-6. This results in the features and target = default.payment.next.month:
+5. Combinations of categories with few elements: in the first pass they were kept during training but they hampered the model performance hence they were discarded on the second [iteration of the model](#part-3-model-refinement).
+6. A new feature `BAL_AMT = BILL_AMT - PAY_AMT` was created, and `BILL_AMT`, `PAY_AMT` were dropped. Having this feature should capture the same information and also making the model faster to train by having one less feature to train on.
+6. The previous steps result in the following features and target, e.g. `default.payment.next.month`:
 	
 	![baseline_features_targets](images/baseline_features_targets.png)
 	
@@ -32,11 +33,11 @@ This dataset contains information on default payments, demographic factors, cred
 		
 		![baseline_age](images/baseline_age.png)
 	
-	- This plot is representative of the `BAL_AMT` features, which are mostly centered around 0 but there are some outliers, which for this exercise aren't discared though they could in further iterations.
+	- The following plot is representative of the `BAL_AMT` features, which are mostly centered around 0. However, there are some outliers which aren't discarded in this exercise though they could be discarded in further iterations of the model.
 	
 		![baseline_distribution_numerical_features](images/baseline_distribution_numerical_features.png)
 		
-	- The target `default.payment.next.month` is unbalanced hence, after doing the train/test split the minority class `default.payment.next.month = 1` will be upscaled. This is done at that stage otherwise there would be [information leakage](https://www.section.io/engineering-education/data-leakage/#:~:text=Data%20leakage%20is%20a%20problem,have%20exaggerated%20results%20during%20training.) from the training into the testing set.
+	- The target `default.payment.next.month` is unbalanced hence, after doing the train/test split the minority class `default.payment.next.month = 1` will be upscaled. This is done at this stage otherwise there would be [information leakage](https://www.section.io/engineering-education/data-leakage/#:~:text=Data%20leakage%20is%20a%20problem,have%20exaggerated%20results%20during%20training.) from the train into the test set.
 	
 		![baseline_targets_distribution](images/baseline_targets_distribution.png)
 	
@@ -44,9 +45,8 @@ This dataset contains information on default payments, demographic factors, cred
 	
 		![baseline_combination_categories](images/baseline_combination_categories.png)
 	
-7. One-hot encoding of the categorical features takes place at this stage, before splitting the dataset into train/test, allowing the the encoder has access to all the categorical features in the set. 
+8. One-hot encoding of the categorical features took place at this stage, before the dataset was split into train/test, allowing the encoder to have access to all the categorical features in the set. 
 	
-		
 
 ## Part 2: Prediction Modeling
 
@@ -56,11 +56,11 @@ This dataset contains information on default payments, demographic factors, cred
 
 **Answer:**
 
-1. I selected an XGBoost classificator model for its versatility at the risk of overfitting the small dataset which became evident when doing the following small training test. Admitedly, this should be done using a validation set instead of test, but it serves to illustrate the point. Having a larger dataset would allow a better overfitting analysis by having train/val/test datasets. Currently the split is train/test 80/20 and then the minority class (default) is randomly upscaled.
+1. I selected an XGBoost classificator model for its versatility at the risk of overfitting the small training dataset. This fact became evident when running the following brief training test. Admittedly, this should be done using a validation set instead of a test set, but it serves to illustrate the point. Having a larger dataset would allow better overfitting analysis by having train/val/test datasets. Currently, the split is train/test 80/20 and then the minority class (`default.payment.next.month = 1`) is randomly upscaled.
 
 	![baseline_training](images/baseline_training.png)
 	
-2. After using tuning the hyperparameters using GridSearchCV (with 3 folds due to the small amount of data) the resulting model has the following metrics:
+2. After tuning the hyperparameters using GridSearchCV (with 3 folds due to the small amount of data), the resulting model has the following metrics:
 	
 	``` bash
 	Metrics Train - accuracy: 1.0 f1: 1.0 precision: 1.0 recall: 1.0 roc_auc: 1.0
@@ -70,46 +70,47 @@ This dataset contains information on default payments, demographic factors, cred
 	![baseline_train_test](images/baseline_train_test.png)
 	
 	It can be seen that the metrics in the training dataset are significantly better than in the test dataset, a sign that the model is overfitting. Hence in subsequent models a shallower model could be tested.
-3. I focus in the `ROC_AUC` metrics as it's the harmonic mean of precision and recall, avoiding the [accuracy in imbalanced situations trap](https://machinelearningmastery.com/failure-of-accuracy-for-imbalanced-class-distributions/). Though selecting which metric to focus on can be discussed with the domain experts, this way the model performance is aligned with the business objectives. 
-4. When taking a look into the model performance for combinations of features (categories), I found that the combinations that had fewer elements do hamper the performance of the model, e.g. `education = others` and `marriage = others`.
+	
+3. I focus on the `ROC_AUC` metric as it is the harmonic mean of precision and recall, avoiding the [accuracy in imbalanced situations trap](https://machinelearningmastery.com/failure-of-accuracy-for-imbalanced-class-distributions/). However, the selection of which metric to focus on can be discussed with the domain experts, hence aligning the model training with the business objectives. 
+4. When taking a look into the model performance for combinations of features (categories), I found that the combinations that had fewer elements have hampered the performance of the model, e.g. `education = others` and `marriage = others`.
 
 	![baseline_roc_test_gender](images/baseline_roc_test_sex.png)
 	
 	![baseline_roc_test_marr](images/baseline_roc_test_marr.png)
 		
-5. Additionally the same combinations of categories with few elements do have little predictive power according to SHAP values
+5. Additionally, the same combinations of categories with few elements have little predictive power according to SHAP values.
 	
 	![baseline_shap_test](images/baseline_shap_test.png)
 	
-6. These findings raise show us a couple of paths that we could follow to improve the model. These avenues are discussed in the section [Optional](#optional). 
+6. These findings show us several of paths that we could follow to improve the model. These avenues are discussed in the section [Optional](#optional). 
 	
 
 ## Part 3: Model refinement
 
-While the same approach as in Part 1 and Part 2 were taken, the learnings from the first iteration of the model, which are discussed in [Optional](#optional), suggested to I discard `education = others` and `marriage = others` resulting in the following categories:
+While the same approach as in Part 1 and Part 2 was taken, the learnings from that first iteration of the model training were brought forward, for example discarding `education = others` and `marriage = others` resulting in the following categories:
 
 ![revised_model_categories](images/revised_model_categories.png)
 
-Moreover, I after tuning a shallower model (tree deep up to 8), the metrics are: 
+Moreover, after tuning a shallower model (tree depth up to 8), the metrics are as follows: 
 
 ```
 Metrics Train - accuracy: 0.95 f1: 0.95 precision: 0.92 recall: 0.98 roc_auc: 0.95
 Metrics Test - accuracy: 0.7 f1: 0.37 precision: 0.35 recall: 0.39 roc_auc: 0.59
 ```
 
-which show a slightly `ROC_AUC` for the training set but an improvement in the test, reducing the overfitting, showing that both reducing the complexity of the model and dropping categories would help the model predict unseen data.
+which show a slightly lower `ROC_AUC` when comparing the results between the first and second models on the train set, but an improvement second model the test set. Therefore the second iteration of the model shows signs of overfitting reduction, therefore demonstrating that both reducing the complexity of the model and dropping categories help the model predict unseen data.
 
-Moreover, the categories are a bit more stable, with slightly higher values individual (as the average shows) but when that's not the case the standard deviation is lower, `sex = female` and `education = high_school`.
+Moreover, the `ROC_AUC` performance on individual combination of feature categories is generally higher in the second model, though when this is not the case the standard deviation is lower, e.g. `sex = female` and `education = high_school`.
 
 ![revised_model_roc_test_gender](images/revised_model_roc_test_sex.png)
 
 ![revised_model_roc_test_marr](images/revised_model_roc_test_marr.png)
 
-Finally the SHAP importance values show us that the features kept have a similar order than the original model, confirming that keeping them was the right decision. 
+Finally the SHAP importance values show us that the features kept have a similar order and importance as the original model, confirming that keeping such features was the right decision. 
 
 ![revised_model_shap_test](images/revised_model_shap_test.png)
 
-These findings raise show us a couple of paths that we could follow to improve the model in a further iteration. These avenues are discussed in the section [Optional](#optional). 
+These findings show us a couple of paths that we could follow to improve the model in a further iteration. These avenues are discussed in the section [Optional](#optional). 
 
 ## Requirements
 
@@ -118,31 +119,33 @@ These findings raise show us a couple of paths that we could follow to improve t
 **Answer:**
 
 1. [v0\_Baseline\_FeatureExploration/00\_ExploratoryAnalysis\_ETL.ipynb](v0_Baseline_FeatureExploration/00_ExploratoryAnalysis_ETL.ipynb): 
-	- Contains the first pass of EDA and ETL, dropping features that would create subcategories with few items, have multiple nan values or undescribed values. Created a new feature `BAL_AMT = BILL_AMT - PAY_AMT`. 
-	- Moreover, it was found that there are outliers in the numerical features and that also the categories to predict are umbalanced. 
-	- Finally, the output of this is the data for training in its original format and one-hot-encoded version, in addition to the encoder.
+	- Contains the first pass of EDA and ETL. In this first pass, features that would create subcategories with few items, have multiple nan values or undescribed values were dropped. Additionally, a new feature `BAL_AMT = BILL_AMT - PAY_AMT` was created. 
+	- Moreover, it was found that there were outliers in the numerical features, also the categories inside the target were umbalanced. 
+	- Finally, the data for training in its original format and one-hot-encoded version, in addition to the encoder were exported.
+
 2. [00\_ExploratoryAnalysis\_ETL](00_ExploratoryAnalysis_ETL.ipynb): 
-	- Second iteration of EDA and ETL. Based on the findings of the first model training, some the categories with few elements were dropped, e.g. `education = others` and `marriage = others`. 
-	- Exported the data for training in its original format and one-hot-encoded version, in addition to the encoder.
+	- Contains the second iteration of EDA and ETL. Based on the findings of the first model training, some of the categories with few elements were dropped, e.g. `education = others` and `marriage = others`. 
+	- The data for training in its original format and one-hot-encoded version, in addition to the encoder were exported.
 
 - [ x ] Jupyter Notebook for Prediction Modeling:
 
 **Answer:**
 
 1. [v0\_Baseline\_FeatureExploration/01\_Model.ipynb](v0_Baseline_FeatureExploration/01_Model.ipynb):
-	-  First pass of the XGBoost model training. I split the data in train/test using a 80/20 split, stratified according to the distribution of 'y', e.g. if the customer defaults or not, and tuned the model using GridSearchCV for several hyperparameters. 
-	-  The training results show that, as expected, the categories  with few elements, e.g. `education = others` and `marriage = others`, impact the model negatively and as well have low predicting power according to SHAP values, hence in the next revision they are discarded.
+	-  Contains the first pass of the XGBoost model training. The data was splitted in train/test sets using an 80/20 split and stratified according to the distribution of `default.payment.next.month`, e.g. if the customer defaults or not.
+	-  The model hyperparameters were tuned using GridSearchCV. 
+	-  The training results show that, as expected, the categories  with few elements, e.g. `education = others` and `marriage = others`, impacted the model negatively and had low predictive power according to the SHAP values, hence in the next model iteration they are discarded.
 
 2. [01\_Model.ipynb](v0_Baseline_FeatureExploration/01_Model.ipynb): 
-	- Second iteration of the XGBoost model training. 
-	- Following the same ETL and split procedure that in the first pass the training results show that, in general there's an increase in AUC by a couple percentual points for most categories or lowering the standard deviation in its value. Therefore, confirming that the categories with few elements, e.g. `education = others` and `marriage = others`, impacted the model negatively. 
-	- Moreover, the category `education = unknown` might be also considered to be discarded, but this is left for a further iteration of the model.
+	- Contains the second iteration of the XGBoost model. 
+	- Following the same ETL and split procedure as in the first pass, the training results show that in general there has been an increase in `ROC_AUC` by several percentage points for most categories or a reduction in the standard deviation. Therefore, confirming that the categories with few elements, e.g. `education = others` and `marriage = others`, impacted the model negatively. 
+	- Moreover, the category `education = unknown` might also be considered to be discarded, but this is left for a further iteration of the model.
 
 - [ x ] Implementation in Python of a simple data model that can be trained and predict whether a user will default or not, let us know if you prefer something other than Python
 
 **Answer:**
 
-There are two python scripts for which the instructions are on how to run them can be found in the [Deliverables](#deliverables) section which mainly involve activating the respective virtual environment.
+There are two python scripts for which the instructions on how to run them can be found in the [Deliverables](#deliverables) section which mainly involve activating the respective virtual environment.
 
 1. `model_training.py` trains a model based in the findings of `00_ExploratoryAnalysis_ETL.ipynb` and `01_Model.ipynb`
 2. `model_inference.py` takes a file with exactly the same features as `data.csv` and makes predictions, giving the output metrics.
