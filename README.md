@@ -145,11 +145,11 @@ These findings show us a couple of paths that we could follow to improve the mod
 
 **Answer:**
 
-There are two python scripts for which the instructions on how to run them can be found in the [Deliverables](#deliverables) section which mainly involve activating the respective virtual environment.
+There are two python scripts for which the instructions on how to run them can be found in the [Deliverables](#deliverables) section which mainly involve activating the virtual environment.
 
-1. `model_training.py` trains a model based in the findings of `00_ExploratoryAnalysis_ETL.ipynb` and `01_Model.ipynb`
-2. `model_inference.py` takes a file with exactly the same features as `data.csv` and makes predictions, giving the output metrics.
-3. `model_inference.py` could be adapted to receive command line arguments to make single predictions based on a single user, though this was not done. 
+1. `model_training.py` trains a model based on the findings of `00_ExploratoryAnalysis_ETL.ipynb` and `01_Model.ipynb`
+2. `model_inference.py` takes a file with exactly the same features as `data.csv` and makes predictions, returning the output metrics.
+3. `model_inference.py` could be adapted to receive command line arguments to make single predictions based on a single user, though this could be easily implemented on request. 
 
 ## Optional
 
@@ -159,22 +159,22 @@ There are two python scripts for which the instructions on how to run them can b
 
 The general strategy was to:
 	
-1. Do a first pass to create a model baseline, to which subsequent models could be compared, making a minimal ETL and feature creation which can be found in [v0\_Baseline\_FeatureExploration](v0_Baseline_FeatureExploration).
+1. Do a first pass to create a model baseline, of which subsequent models could be compared against, doing a minimal ETL and feature creation that can be found in [v0\_Baseline\_FeatureExploration](v0_Baseline_FeatureExploration).
 2. Implement some of the learnings from the first pass and iterate in the feature creation and model training which can be found in [the current root folder](.).
 	
-These two iterations had the same approach, that is to divide the work into two stages:
+These two iterations followed the same general approach, that is to divide the work into two stages:
 
-- Import data, evaluate its quality and peform feature selection, done in the `00_ExploratoryAnalysis_ETL.ipynb` files, this means:
-	- Discard features with multiple nan's or that aren't explained by the data dictionary.
-	- Identify for numerical outliers, in this case these were kept in place which would allow to stablish a model baseline. This is work that could be done in a third pass of the model.
-	- Few elements in certain combinations of categories: in the first pass they were kept but they hampered the model performance hence they were discarded on the second iteration of the model
-	- Created a new feature `BAL_AMT = BILL_AMT - PAY_AMT`, and drop `BILL_AMT`, `PAY_AMT`. Having this feature should capture the same information and also making the model training faster by having one less feature to train on.
-	- One-hot encoded the categorical features, e.g. before splitting the dataset into train/test. In this way the encoder has access to all the categorical features in the set. Regardless the encoder has `handle_unknown='ignore'`, allowing the encoder to manage possibly unknown categories inside of the categorical features. 
+-  Stage 1 - Import data, evaluate its quality and peformed feature selection, that was done in the `00_ExploratoryAnalysis_ETL.ipynb` files, in particular:
+	- Discarded features with multiple nan's or that aren't explained by the data dictionary.
+	- Identified numerical outliers, which were kept in place to allow establishing a model baseline. Discarding these numerical outliers could be done in a third pass of the model.
+	- The combinations of categories with few elements, were kept in the first pass. However, these combinations of categories hampered the model's performance, hence they were discarded in the second iteration of the model.
+	- Created a new feature `BAL_AMT = BILL_AMT - PAY_AMT`, and dropped  `BILL_AMT`, `PAY_AMT`. Having this feature should capture the same information and also make the model training faster by having one less feature to train on.
+	- One-hot encoded the categorical features before splitting the dataset into train/test. This way, the encoder has access to all the categorical features in the set. Regardless, the encoder has the option `handle_unknown='ignore'`, allowing the encoder to manage possibly unknown categories inside of the categorical features. 
 
-- Model training, done in `01_Model.ipynb` files, for example:
-	- Imbalanced predictive class: I decided to upscale the minority class, e.g. defaults, as this would allow to keep the richness of the majority class features.
-	- Used an XGBoost classifier which is a versatile and powerful model, that doesn't require feature scaling, it's not affected by multicolinearity by default but is prone to overfitting in small datasets such as this one.
-	- Tuned the model using GridSearchCV, which instead could be done using a bayesian or another hyperparameter method that allows 'educated guesses' of hyperparameters resulting in fewer evaluations and a more accurate model.
+- Stage 2 - Model training, done in `01_Model.ipynb` files, for example:
+	- Imbalanced predictive class: upscaled the minority class, e.g. `default.payment.next.month = 1`, thus retaining the richness of the majority class features.
+	- Used an XGBoost classifier which is a versatile and powerful model, that doesn't require feature scaling. Moreoveor, it is not affected by multicollinearity by construction but is prone to overfitting in small datasets such as this one.
+	- Tuned the model's hyperparameters using GridSearchCV, this procedure could instead be done using a Bayesian or another hyperparameter method that allows educated guesses of hyperparameters resulting in fewer evaluations and a more accurate model.
 
 - [ x ] Let us know what improvements can be made if we have more time and resources
 
@@ -184,34 +184,33 @@ These two iterations had the same approach, that is to divide the work into two 
 
 	Dataset and feature improvements:
 	
-	- The categories with small number of records, for example `education = others`, could be discarded as they hamper the training, metrics and they have low predictive value according to shap and importances.
-	- Alternatively embeddings could be created for the combination of categories with small number of records.
+	- The categories with small number of records, for example `education = others` and `marriage = others`, could be discarded as they have hampered the training metrics and have low predictive power according to Shap and feature importances.
+	- Alternatively, embeddings could be created for the combination of categories with small number of records.
 	- Limit outliers in numerical features, for example using inter-quantile ranges.
-	- Do a more advanced feature selectior, for example using Chi-Squared, Mutual or others.
-	
+	- Perform more advanced categorical feature selection, for example using Chi-Squared, Mutual or others.
 	
 	Additionally, acquiring a larger dataset that could unlock the following advantages:
 	
-	- Make the categories with fewer items be more significant.
-	- Consider including the PAY categories if there's more data to fill the many more categories to be created.
-	- Have a validation dataset would help studying overfitting.
+	- Increasing the number of elements in the categories with small number of items.
+	- Consider including the `PAY` features if there is enough data to produce combination of categories with significant number of items.
+	- Have a validation dataset would help analysom overfitting.
 	
 	In terms of model training and evaluation:
 	
-	- Better hyperparameter optimisation method for example a bayesian based one.
-	- Study the decision tree (the necessary libraries, Graphviz make the environment a bit more difficult to transfer the environment).
-	- Evaluate other models, perhaps a Neural Network. Though it's my educated belief that the effort might not pay off.
-	- In-depth discussion between data science, domain experts and management about the of trade-offs between different model metrics.
+	- Implement a better hyperparameter optimisation method for example a Bayesian-based one.
+	- Study the model decision tree. Currently, the necessary libraries, in particular Graphviz, make the development environment difficult to share hence not used.
+	- Evaluate other models, perhaps a Neural Network. Based on past experience, this effort may not pay off.
+	- In-depth discussion between data science, domain experts and management about the trade-offs between different model metrics.
 
 2. From the second iteration of model training I can add that:
 
 	Dataset and feature improvements:
 	
-	- The categories with small number of records, could be merged into one, e.g. `education = unknown; education = others; marriage = others`, respectively.
+	- The categories with small number of records, could be merged into one, e.g. `education = unknown; education = others`.
 	
 	In terms of model training and evaluation:
 	
-	- It seems that the dataset is overfitting the train dataset, thus having not so great result in the test, thefore this could be an area to improvement. Perhaps creating including more features that allow the model to learn the dataset from another perspective.
+	- The model is overfitting the training dataset, thus performing worse in the test dataset, therefore this is an area to improve. 
 
 ## Deliverables
 
@@ -225,13 +224,13 @@ Please do check [https://github.com/InHouse-Banana/DataScientistChallenge](https
 
 **Answer:**
 
-1. To run the training source code it requires a conda installation
-2. Create a conda environment from env.yml and if you’d like to run the notebooks register it with jupyter. For example:
+1. To run the training source code it requires a Conda installation
+2. Create a conda environment from `env.yml` and if you’d like to run the notebooks, register this environment with jupyter. For example:
 	- `conda env create --file env.yml`
 	- `conda activate env`
 	- `python -m ipykernel install --user --name=env`
-3. To run the training, after activating the env please execute the following commands.  The script will take care of ETL, feature creation and model tuning.
-	- Requires data training source files in dataset/data.csv
+3. To run the training script, after activating the env, please execute the following commands.  The script will take care of ETL, feature creation and model tuning.
+	- Requires data training source files to be located in in `dataset/data.csv`.
 	- Execute: `python model_training.py`
 4. To run inference execute `python model_inference.py`, which takes a `source-file` with exactly the same features as `data.csv`, makes defaulting predictions and returns the metrics.
 
