@@ -18,7 +18,7 @@ This dataset contains information on default payments, demographic factors, cred
 	
 		![baseline_categorical_sex_ed_marr](images/baseline_categorical_sex_ed_marr.png)
 	
-	4. Few elements in certain combinations of categories: in the first pass they were kept but they hampered the model performance hence they were discarded on the second [iteration of the model](#part-3:-model-refinement).
+	4. Few elements in certain combinations of categories: in the first pass they were kept but they hampered the model performance hence they were discarded on the second [iteration of the model](#part-3\:-model-refinement).
 	5. Created a new feature `BAL_AMT = BILL_AMT - PAY_AMT`, and drop `BILL_AMT`, `PAY_AMT`. Having this feature should capture the same information and also making the model training faster by having one less feature to train on.
 	6. This results in the features and target = default.payment.next.month:
 	
@@ -34,7 +34,7 @@ This dataset contains information on default payments, demographic factors, cred
 	
 		![baseline_distribution_numerical_features](images/baseline_distribution_numerical_features.png)
 		
-	- The target `default.payment.next.month` is unbalanced hence, after doing the train/test split the minority class `default.payment.next.month = 1` will be upscaled. This is done at this stage otherwise there would be leakage of elements from training into the testing set.
+	- The target `default.payment.next.month` is unbalanced hence, after doing the train/test split the minority class `default.payment.next.month = 1` will be upscaled. This is done at this stage otherwise there would be [information leakage](https://www.section.io/engineering-education/data-leakage/#:~:text=Data%20leakage%20is%20a%20problem,have%20exaggerated%20results%20during%20training.) from the training into the testing set.
 
 		![baseline_targets_distribution](images/baseline_targets_distribution.png)
 	
@@ -42,7 +42,7 @@ This dataset contains information on default payments, demographic factors, cred
 
 		![baseline_combination_categories](images/baseline_combination_categories.png)
 		
-	7. One-hot encoding of the categorical features takes place at this stage, before splitting the dataset into train/test, this way the encoder has access to all the categorical features in the set. 
+	7. One-hot encoding of the categorical features takes place at this stage, before splitting the dataset into train/test, allowing the the encoder has access to all the categorical features in the set. 
 		
 		
 
@@ -66,7 +66,7 @@ This dataset contains information on default payments, demographic factors, cred
 		![baseline_train_test](images/baseline_train_test.png)
 		
 		It can be seen that the metrics in the training dataset are significantly better than in the test dataset, a sign that the model is overfitting. Hence in subsequent models a shallower model could be tested.
-	3. I focus in the `ROC_AUC` metrics as it's the harmonic mean of precision and recall, avoiding the [`accuracy in imbalanced situations trap`](https://machinelearningmastery.com/failure-of-accuracy-for-imbalanced-class-distributions/). Though which metric to focus on can be discussed with the domain experts so the model is aligned with the business objectives. When taking a look into the combination of categories I found that the ones that had fewer elemtents do hamper the performance of the model, and these are education = others and marriage = others
+	3. I focus in the `ROC_AUC` metrics as it's the harmonic mean of precision and recall, avoiding the [accuracy in imbalanced situations trap](https://machinelearningmastery.com/failure-of-accuracy-for-imbalanced-class-distributions/). Though which metric to focus on can be discussed with the domain experts so the model is aligned with the business objectives. When taking a look into the combination of categories I found that the ones that had fewer elemtents do hamper the performance of the model, and these are education = others and marriage = others
 
 		![baseline_roc_test_gender](images/baseline_roc_test_sex.png)
 		
