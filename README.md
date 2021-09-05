@@ -18,7 +18,7 @@ This dataset contains information on default payments, demographic factors, cred
 	
 		![baseline_categorical_sex_ed_marr](images/baseline_categorical_sex_ed_marr.png)
 	
-	4. Few elements in certain combinations of categories: in the first pass they were kept but they hampered the model performance hence they were discarded on the second iteration of the model
+	4. Few elements in certain combinations of categories: in the first pass they were kept but they hampered the model performance hence they were discarded on the second [iteration of the model](#part-3:-model-refinement).
 	5. Created a new feature `BAL_AMT = BILL_AMT - PAY_AMT`, and drop `BILL_AMT`, `PAY_AMT`. Having this feature should capture the same information and also making the model training faster by having one less feature to train on.
 	6. This results in the features and target = default.payment.next.month:
 	
@@ -66,7 +66,7 @@ This dataset contains information on default payments, demographic factors, cred
 		![baseline_train_test](images/baseline_train_test.png)
 		
 		It can be seen that the metrics in the training dataset are significantly better than in the test dataset, a sign that the model is overfitting. Hence in subsequent models a shallower model could be tested.
-	3. I focus in the `ROC_AUC` metrics as it's the harmonic mean of precision and recall, avoiding the [`accuracy in imbalanced situations trap`](https://machinelearningmastery.com/failure-of-accuracy-for-imbalanced-class-distributions/). Though which metric to focus on can be discussed with the domain experts so the model is aligned with the business objectives. When taking a look into individual categories. When taking a look into the combination of categories I found that the ones that had fewer elemtents do hamper the performance of the model, and these are education = others and marriage = others
+	3. I focus in the `ROC_AUC` metrics as it's the harmonic mean of precision and recall, avoiding the [`accuracy in imbalanced situations trap`](https://machinelearningmastery.com/failure-of-accuracy-for-imbalanced-class-distributions/). Though which metric to focus on can be discussed with the domain experts so the model is aligned with the business objectives. When taking a look into the combination of categories I found that the ones that had fewer elemtents do hamper the performance of the model, and these are education = others and marriage = others
 
 		![baseline_roc_test_gender](images/baseline_roc_test_sex.png)
 		
