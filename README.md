@@ -86,7 +86,7 @@ While the same approach as in Part 1 and Part 2 were taken, the learnings from t
 
 ![revised_model_categories](images/revised_model_categories.png)
 
-Moreover, I after tuning a shallower model (less deep tree up to 8), the metrics are: 
+Moreover, I after tuning a shallower model (tree deep up to 8), the metrics are: 
 
 ```
 Metrics Train - accuracy: 0.95 f1: 0.95 precision: 0.92 recall: 0.98 roc_auc: 0.95
