@@ -18,7 +18,7 @@ This dataset contains information on default payments, demographic factors, cred
 	
 		![baseline_categorical_sex_ed_marr](images/baseline_categorical_sex_ed_marr.png)
 	
-	4. Few elements in certain combinations of categories: in the first pass they were kept but they hampered the model performance hence they were discarded on the second [iteration of the model](#part-3:-model-refinement).
+	4. Few elements in certain combinations of categories: in the first pass they were kept but they hampered the model performance hence they were discarded on the second [iteration of the model](#part-3':-model-refinement).
 	5. Created a new feature `BAL_AMT = BILL_AMT - PAY_AMT`, and drop `BILL_AMT`, `PAY_AMT`. Having this feature should capture the same information and also making the model training faster by having one less feature to train on.
 	6. This results in the features and target = default.payment.next.month:
 	
