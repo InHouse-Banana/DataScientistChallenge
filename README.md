@@ -91,7 +91,12 @@ While the same approach as in Part 1 and Part 2 was taken, the learnings from th
 
 ![revised_model_categories](images/revised_model_categories.png)
 
-Moreover, after tuning a shallower model (tree depth up to 8), the metrics are as follows: 
+Moreover, after tuning a shallower model (tree depth up to 8), the confusion matrix is as follows:
+
+
+![revised_model_cm_test](images/revised_model_cm_test.png)
+
+and the metrics are as follows: 
 
 ```
 Metrics Train - accuracy: 0.95 f1: 0.95 precision: 0.92 recall: 0.98 roc_auc: 0.95
