@@ -103,7 +103,7 @@ Metrics Train - accuracy: 0.95 f1: 0.95 precision: 0.92 recall: 0.98 roc_auc: 0.
 Metrics Test - accuracy: 0.7 f1: 0.37 precision: 0.35 recall: 0.39 roc_auc: 0.59
 ```
 
-which show a slightly lower `ROC_AUC` when comparing the results between the first and second models on the train set, but an improvement second model the test set. Therefore the second iteration of the model shows signs of overfitting reduction, therefore demonstrating that both reducing the complexity of the model and dropping categories help the model predict unseen data.
+which show a slightly lower `ROC_AUC` when comparing the results between the first and second models on the train set, but an improvement second model the test set. Therefore the second iteration of the model shows signs of overfitting reduction, demonstrating that both reducing the complexity of the model and dropping categories help the model predict unseen data.
 
 Moreover, the `ROC_AUC` performance on individual combination of feature categories is generally higher in the second model, though when this is not the case the standard deviation is lower, e.g. `sex = female` and `education = high_school`.
 
