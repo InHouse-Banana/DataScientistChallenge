@@ -21,7 +21,7 @@ This dataset contains information on default payments, demographic factors, cred
 	
 	![baseline_categorical_sex_ed_marr](images/baseline_categorical_sex_ed_marr.png)
 	
-5. Combinations of categories with few elements: in the first pass they were kept during training but they hampered the model performance hence they were discarded on the second [iteration of the model](#part-3-model-refinement).
+5. Combinations of categories, e.g. `sex`, `education` and `marriage`, with few elements : in the first pass they were kept during training but they hampered the model performance hence they were discarded on the second [iteration of the model](#part-3-model-refinement).
 6. A new feature `BAL_AMT = BILL_AMT - PAY_AMT` was created, and `BILL_AMT`, `PAY_AMT` were dropped. Having this feature should capture the same information and also making the model faster to train by having one less feature to train on.
 6. The previous steps result in the following features and target, e.g. `default.payment.next.month`:
 	
@@ -171,8 +171,9 @@ These two iterations followed the same general approach, that is to divide the w
 
 -  Stage 1 - Import data, evaluate its quality and peformed feature selection, that was done in the `00_ExploratoryAnalysis_ETL.ipynb` files, in particular:
 	- Discarded features with multiple nan's or that aren't explained by the data dictionary.
+	- Discarded `PAY`features as they added multiple categories with few or no elements.
 	- Identified numerical outliers, which were kept in place to allow establishing a model baseline. Discarding these numerical outliers could be done in a third pass of the model.
-	- The combinations of categories with few elements, were kept in the first pass. However, these combinations of categories hampered the model's performance, hence they were discarded in the second iteration of the model.
+	- Combinations of categoriese.g. `sex`, `education` and `marriage`, with few elements, were kept in the first pass. However, these combinations of categories hampered the model's performance, hence they were discarded in the second iteration of the model.
 	- Created a new feature `BAL_AMT = BILL_AMT - PAY_AMT`, and dropped  `BILL_AMT`, `PAY_AMT`. Having this feature should capture the same information and also make the model training faster by having one less feature to train on.
 	- One-hot encoded the categorical features before splitting the dataset into train/test. This way, the encoder has access to all the categorical features in the set. Regardless, the encoder has the option `handle_unknown='ignore'`, allowing the encoder to manage possibly unknown categories inside of the categorical features. 
 
