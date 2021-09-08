@@ -198,7 +198,7 @@ These two iterations followed the same general approach, that is to divide the w
 	
 	- Increasing the number of elements in the categories with small number of items.
 	- Consider including the `PAY` features if there is enough data to produce combination of categories with significant number of items.
-	- Have a validation dataset would help analysom overfitting.
+	- Have a validation dataset would help analyse overfitting.
 	
 	In terms of model training and evaluation:
 	
